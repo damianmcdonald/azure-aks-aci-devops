@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.github.damianmcdonald.devops</groupId>
+	<artifactId>sample-app-svn-git</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>war</packaging>
+
+	<name>sample-app-svn-git</name>
+	<description>Sample project for demonstrating a SVN - Git bridge</description>
+
+	<parent>
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>2.2.0.RELEASE</version>
+		<relativePath /> <!-- lookup parent from repository -->
+	</parent>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+		<java.version>1.8</java.version>
+		<!-- Azure DevOps project values -->
+		<azure.nexus.url>http://AZURE_NEXUS_URL:8081</azure.nexus.url>
+		<azure.tomcat.url>http://AZURE_TOMCAT_URL:7895</azure.tomcat.url>
+	</properties>
+
+	<distributionManagement>
+		 <snapshotRepository>
+				<id>nexus-snapshots</id>
+				<url>http://${azure.nexus.url}/repository/maven-snapshots/</url>
+		 </snapshotRepository>
+	</distributionManagement>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
+			<version>3.8.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-text</artifactId>
+			<version>1.4</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
+
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>1.13</version>
+		</dependency>
+
+	</dependencies>
+
+	<build>
+    <plugins>
+	    <plugin>
+		    <groupId>org.springframework.boot</groupId>
+		    <artifactId>spring-boot-maven-plugin</artifactId>
+	    </plugin>
+        <plugin>
+           <artifactId>maven-deploy-plugin</artifactId>
+           <version>2.8.1</version>
+           <executions>
+              <execution>
+                 <id>default-deploy</id>
+                 <phase>deploy</phase>
+                 <goals>
+                    <goal>deploy</goal>
+                 </goals>
+              </execution>
+           </executions>
+        </plugin>
+        <plugin>
+           <groupId>org.sonatype.plugins</groupId>
+           <artifactId>nexus-staging-maven-plugin</artifactId>
+           <version>1.6.8</version>
+           <executions>
+              <execution>
+                 <id>default-deploy</id>
+                 <phase>deploy</phase>
+                 <goals>
+                    <goal>deploy</goal>
+                 </goals>
+              </execution>
+           </executions>
+           <configuration>
+              <serverId>nexus-snapshots</serverId>
+              <nexusUrl>${azure.nexus.url}/nexus</nexusUrl>
+              <skipStaging>true</skipStaging>
+           </configuration>
+        </plugin>
+	    <plugin>
+		    <groupId>org.apache.tomcat.maven</groupId>
+		    <artifactId>tomcat7-maven-plugin</artifactId>
+		    <version>2.2</version>
+		    <configuration>
+			    <url>http://${azure.tomcat.url}/manager/text</url>
+			    <server>TomcatServer</server>
+			    <path>/sample-app-svn-git</path>
+		    </configuration>
+        </plugin>
+          <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.5</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>prepare-package</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+    </plugins>
+	</build>
+
+</project>

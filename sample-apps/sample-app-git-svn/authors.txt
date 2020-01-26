@@ -1,0 +1,1 @@
+svnuser1 = gituser1 <gituser1@DOMAIN_NAME>

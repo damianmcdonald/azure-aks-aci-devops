@@ -1,0 +1,85 @@
+def skipRemainingStages = false
+pipeline {
+    agent any
+    tools {
+        maven 'Maven3'
+        jdk 'Java8'
+    }
+    environment {
+        SONAR_URL = 'http://AZURE_SONAR_URL:9000'
+    }
+    stages {
+      stage('Validate build') {
+            when {
+                changelog '^(?s)\\[maven-release-plugin\\].*'
+            }
+            steps {
+                script {
+                    skipRemainingStages = true
+                    println "skipRemainingStages = ${skipRemainingStages}"
+                }
+            }
+        }
+        stage('Compile') {
+        when {
+            expression {
+                !skipRemainingStages
+            }
+        }
+        steps {
+                sh 'mvn -s $PWD/settings.xml clean compile -Dmaven.test.skip=true'
+            }
+        }
+        stage('Test') {
+            when {
+                expression {
+                    !skipRemainingStages
+                }
+            }
+            steps {
+                echo 'Executing project tests ...'
+                sh 'mvn -s $PWD/settings.xml clean test -Dmaven.test.skip=false'
+            }
+        }
+        stage('Sonar quality validation') {
+            when {
+                expression {
+                    !skipRemainingStages
+                }
+            }
+            steps {
+                echo 'Applying Sonar Quality Rules to project ...'
+                sh 'mvn -s $PWD/settings.xml clean verify sonar:sonar -Dsonar.host.url=${SONAR_URL}'
+            }
+
+        }
+        stage('Deploy to Nexus') {
+            steps {
+                echo 'Deploy project binary version to Nexus ...'
+                sh 'mvn clean deploy -Dmaven.test.skip=true'
+            }
+        }
+        stage('Application Undeploy') {
+            when {
+                expression {
+                    !skipRemainingStages
+                }
+            }
+            steps {
+                echo 'Undeploy previous version from Tomcat ...'
+                sh 'mvn -s $PWD/settings.xml tomcat7:undeploy -Dmaven.test.skip=true'
+            }
+        }
+        stage('Application Deploy') {
+            when {
+                expression {
+                    !skipRemainingStages
+                }
+            }
+            steps {
+                echo 'Deploy new version to Tomcat ...'
+                sh 'mvn -s $PWD/settings.xml tomcat7:deploy -Dmaven.test.skip=true'
+            }
+        }
+    }
+}

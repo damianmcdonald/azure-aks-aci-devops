@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: jenkins
+spec:
+  type: LoadBalancer
+  selector:
+    name: jenkins
+  ports:
+    -
+      name: http
+      port: 7575
+      targetPort: 7575
+      protocol: TCP
+    -
+      name: slave
+      port: 50000
+      protocol: TCP

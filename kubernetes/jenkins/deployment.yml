@@ -1,0 +1,43 @@
+#https://docs.cloud.oracle.com/iaas/Content/ContEng/Tasks/contengcreatingpersistentvolumeclaim.htm
+#https://akomljen.com/kubernetes-persistent-volumes-with-deployment-and-statefulset/
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: jenkins-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: jenkins
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: false
+      containers:
+      - name: jenkins
+        image: damianmcdonald/jenkins-cloud:1.0.0
+        resources:
+          limits:
+            memory: 4096Mi
+            cpu: 2000m
+          requests:
+            memory: 256Mi
+            cpu: 50m
+        ports:
+          - containerPort: 7575
+          - containerPort: 50000
+        volumeMounts:
+          - name: "jenkinsdata"
+            mountPath: "/var/jenkins_home"
+        livenessProbe:
+              exec:
+                command:
+                - cat
+                - /etc/os-release
+              initialDelaySeconds: 5
+              periodSeconds: 30
+      volumes:
+        - name: "jenkinsdata"
+          persistentVolumeClaim:
+            claimName: jenkins

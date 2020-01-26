@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: tomcat
+spec:
+  type: LoadBalancer
+  selector:
+    name: tomcat
+  ports:
+    -
+      name: http
+      port: 7895
+      targetPort: 7895
+      protocol: TCP

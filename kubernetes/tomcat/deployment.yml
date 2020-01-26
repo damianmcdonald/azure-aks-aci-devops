@@ -1,0 +1,33 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: tomcat-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: tomcat
+    spec:
+      securityContext:
+        fsGroup: 1000
+        runAsNonRoot: false
+      containers:
+      - name: tomcat
+        image: damianmcdonald/tomcat-cloud:1.0.0
+        resources:
+          limits:
+            memory: 1024Mi
+            cpu: 1024m
+          requests:
+            memory: 256Mi
+            cpu: 50m
+        ports:
+          - containerPort: 7895
+        livenessProbe:
+              exec:
+                command:
+                - cat
+                - /etc/os-release
+              initialDelaySeconds: 5
+              periodSeconds: 30
