@@ -264,4 +264,4 @@ Execute the following command using [Azure Cloudshell](https://azure.microsoft.c
 # Test the stack
 
 * [Perform a full release pipeline with sample-app-ci-cd](sample-apps/sample-app-ci-cd)
-* [Verify the SVN - GIT synchronization bridge with sample-app-svn-git](sample-apps/sample-app-svn-git)
+* [Verify the SVN - GIT synchronization bridge with sample-app-svn-git](sample-apps/sample-app-git-svn)
